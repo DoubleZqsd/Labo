@@ -1,0 +1,209 @@
+Configuration IPS
+-----------------
+
+-----Base, hostname et password-----
+
+conf t
+hostname IPS
+banner motd #STAFF ONLY, GET OUT !#
+enable secret callisto
+line console 0
+logging synchro
+password callisto
+exit
+line vty 0 4
+logging synchro
+password callisto
+login
+transport input ssh
+exit
+service password-encryption
+end
+wr
+
+-----Sous interface VLAN DATA-----
+
+interface g0/0.51
+shut
+description Vlan DATA
+encapsulation dot1Q 51
+ip address 10.50.51.254 255.255.255.0
+no shut
+
+-----Sous interface VLAN WIFI-----
+
+interface g0/0.52
+shut
+description Vlan WIFI
+encapsulation dot1Q 52
+ip address 10.50.52.254 255.255.255.0
+no shut
+
+-----Sous interface VLAN BIN-----
+
+interface g0/0.53
+shut
+description Vlan POUBELLE
+encapsulation dot1Q 53
+ip address 10.50.53.254 255.255.255.0
+no shut
+
+-----Sous interface VLAN MGT-----
+
+interface g0/0.54
+shut
+description Vlan MANAGEMENT
+encapsulation dot1Q 54
+ip address 10.50.54.254 255.255.255.0
+no shut
+
+-----Sous interface VLAN NATIF-----
+
+interface g0/0.45
+shut
+description Vlan NATIF
+encapsulation dot1Q 45
+ip address 10.40.15.254 255.255.255.0
+no shut
+
+-----Sous interface VLAN MONITORING-----
+
+interface g0/0.56
+shut
+description Vlan MONITORING
+encapsulation dot1Q 56
+ip address 10.50.56.254 255.255.255.0
+no shut
+
+-----Configuration SSH Telnet-----
+
+conf t
+ip domain-name ZqsdPod
+username zqsd privilege 15 secret callisto
+crypto key gen rsa mod 1024
+ip ssh v 2
+line vty 0 4
+login local
+transport input ssh telnet
+exit
+
+ip ssh time-out 75
+ip ssh authentication-retries 5
+
+-----Passage de CDP a LLDP-----
+
+conf t
+lldp run
+no cdp run
+end
+wr
+
+-----Config WinRadius-----
+
+conf t
+aaa new-model
+aaa authentication login default group radius local none
+radius-server host 172.16.5.1 auth-port 1616 acct-port 1617 key WinRadius
+line console 0
+login authentication default
+privilege level 15
+exit
+line vty 0 4
+login authentication default
+privilege level 15
+password callisto
+end
+
+-----Config Syslog-----
+
+conf t
+logging 172.16.5.1
+logging trap 6
+logging source-interface G0/0
+logging source-interface G0/1
+logging on
+login on-failure log
+login on-success log
+end
+
+-----SNMP en lien avec Syslog-----
+
+conf t
+no snmp-server community public RO
+snmp-server community private RO
+snmp-server enable traps
+snmp-server host 172.16.5.1 private
+snmp-server manager
+end
+wr
+
+
+
+
+-----Config PAT-----
+
+conf t
+ip nat inside source list 1 int G0/1 overload
+access-list 1 permit 10.50.51.0 0.0.0.255
+int G0/0.51
+ip nat inside
+exit
+int G0/1
+ip nat outside
+
+
+
+-----COnfiguration IP SLA (test automatique de connectivité)-----
+
+conf t
+ip sla 1
+icmp-echo 100.66.0.1
+frequency 30
+timeout 5000
+exit
+ip sla schedule 5 start-time now life forever
+end
+show ip sla op 1
+
+conf t
+track 1 ip sla 1 state
+delay up 5 down 2
+end
+show track 1
+
+
+-----NTP-----
+
+conf t
+ntp server 10.50.50.2
+clock timezone CST +1
+clock summer-time CST recurring
+service timestamps log datetime localtime
+
+
+
+-----Route pour PAT BBA----- (quelle difference avec ip default-gateway?)
+
+conf t
+ip route 0.0.0.0 0.0.0.0 G0/1 10.50.57.254
+
+
+
+
+-----DHCP relay------
+
+conf t
+int G0/0.51
+ip helper-address 10.50.57.254
+end
+
+
+
+-----Port forwarding pour protocole RDP (3389)(du HP vers le SHS)-----
+(G0/0 int vers SHS)
+
+
+conf t
+int g0/0
+ip nat inside source static tcp 10.50.51.254 3389 172.16.5.1 3389
+end

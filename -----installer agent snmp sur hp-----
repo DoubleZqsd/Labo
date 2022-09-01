@@ -1,0 +1,18 @@
+installer agent snmp sur hp
+sur switch et routeur trap snmp
+
+
+ACL notre pod
+-------------
+Mettre en place des ACL pour que l'interconnexion des kernels chez Cisco ne soit plus opperationnelle (car on ne sais pas la désactiver)
+
+Faire en sorte que le SHS soit le seul à pouvoir accéder au systeme de management. Que si on devait avoir autre chose dans un autre VLAN ça ne soit pas accepté.
+
+Bloquer les interconnexions entre les VLAN.
+Impossible de se connecter au MGT depuis le VLAN DATA
+
+Logs Syslog si une autre machine essaie de se connecter
+
+Serveur TFTP : s'assurer dans le routeur CORE que seules les connexions ses SW et du R ne soient acceptées et uniquement si en direction du TFTP
+
+Avoir des logs sur les ACL

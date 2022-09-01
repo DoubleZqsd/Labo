@@ -1,0 +1,29 @@
+Config SHS
+==========
+
+-----Adresse IP----
+
+10.50.51.1
+255.255.255.0
+10.50.51.254
+
+-----Routes statiques-----
+
+route add -p 10.50.54.0 mask 255.255.255.0 10.50.51.254     (vers vlan management)
+
+route add -p 172.16.5.0 mask 255.255.255.0 10.50.51.254     (vers HP)
+
+route add -p 10.50.50.2 mask 255.255.255.0 10.50.51.254     (vers loopback NTP sur CORE)(/24 for some reason)
+
+route add -p 100.64.0.0 mask 255.255.255.0 10.50.51.254		(vers général BBA)
+
+route add -p 100.66.0.0 mask 255.255.255.0 10.50.51.254		(vers loopback connectivité BBA)
+
+-----Synchro horloge via NTP Core-----
+
+Right clic sur horloge
+Ajuster heure/date
+Ajouter des horloges pour differents fuseaux horaires
+Temps internet
+Modifier les parametres
+Adresse de la loopback NTP

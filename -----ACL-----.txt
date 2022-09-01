@@ -1,0 +1,8 @@
+-----ACL-----
+
+conf t
+ip access-list extended 101
+permit tcp host 10.50.51.1 host 10.50.54.0 eq 22
+permit tcp host 10.50.51.1 host 10.50.54.0 eq 23
+end
+wr

@@ -1,0 +1,25 @@
+Config HP
+=========
+
+-----Adresse IP-----
+
+172.16.5.1
+255.255.255.0
+172.16.5.254
+
+-----Routes statiques-----
+
+route add -p 10.50.51.0 mask 255.255.255.0 172.16.5.254      (vers SHS)
+
+route add -p 10.50.54.0 mask 255.255.255.0 172.16.5.254      (vers vlan management)
+
+route add -p 10.50.50.2 mask 255.255.255.0 172.16.5.254     (vers loopback NTP sur routeur core)
+
+-----Synchro horloge via NTP R01-----
+
+Right clic sur horloge
+Ajuster heure/date
+Ajouter des horloges pour differents fuseaux horaires
+Temps internet
+Modifier les parametres
+Adresse de la loopback NTP

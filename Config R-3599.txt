@@ -1,0 +1,279 @@
+Configuration R-3599
+====================
+
+-----Base, hostname et password-----
+
+conf t
+hostname R-3599
+banner motd #STAFF ONLY, GET OUT !#
+enable secret callisto
+line console 0
+password callisto
+exit
+line vty 0 4
+password callisto
+login
+transport input ssh
+exit
+service password-encryption
+end
+wr
+
+-----Sous interface VLAN DATA-----
+
+interface g0/0.51
+shut
+description Vlan DATA
+encapsulation dot1Q 51
+ip address 10.50.51.254 255.255.255.0
+no shut
+
+-----Sous interface VLAN WIFI-----
+
+interface g0/0.52
+shut
+description Vlan WIFI
+encapsulation dot1Q 52
+ip address 10.50.52.254 255.255.255.0
+no shut
+
+-----Sous interface VLAN BIN-----
+
+interface g0/0.53
+shut
+description Vlan POUBELLE
+encapsulation dot1Q 53
+ip address 10.50.53.254 255.255.255.0
+no shut
+
+-----Sous interface VLAN MGT-----
+
+interface g0/0.54
+shut
+description Vlan MANAGEMENT
+encapsulation dot1Q 54
+ip address 10.50.54.254 255.255.255.0
+no shut
+
+-----Sous interface VLAN NATIF-----
+
+interface g0/0.45
+shut
+description Vlan NATIF
+encapsulation dot1Q 45
+ip address 10.40.15.254 255.255.255.0
+no shut
+
+-----Sous interface VLAN MONITORING-----
+
+interface g0/0.56
+shut
+description Vlan MONITORING
+encapsulation dot1Q 56
+ip address 10.50.56.254 255.255.255.0
+no shut
+
+
+-----Interface vers HP-----
+
+conf t
+int g0/1
+ip address 172.16.5.254 255.255.255.0
+no shut
+end
+wr
+
+
+-----Création des loopbacks-----
+
+conf t
+interface loopback 0
+ip address 10.50.50.1 255.255.255.255
+description Loopback de test de connectivite
+exit
+interface loopback 1
+ip address 10.50.50.2 255.255.255.255
+description Loopback pour NTP
+end
+
+-----Configuration SSH Telnet-----
+
+conf t
+ip domain-name ZqsdPod
+username zqsd privilege 15 secret callisto
+crypto key gen rsa mod 1024
+ip ssh v 2
+line vty 0 4
+login local
+transport input ssh telnet
+exit
+
+ip ssh time-out 75
+ip ssh authentication-retries 5
+
+-----Passage de CDP a LLDP-----
+
+conf t
+lldp run
+no cdp run
+end
+wr
+
+-----Configuration Serveur NTP-----
+
+conf t
+clock timezone gmt +2
+ntp master
+ntp source loopback 1
+ntp update-calendar
+exit
+clock set 16:00:00 10 June 2022
+
+-----Configuration serveur dhcp-----
+
+conf t
+service dhcp
+ip dhcp excluded-address 10.50.51.50 10.50.51.255
+ip dhcp pool HostsDHCP
+network 10.50.51.0 255.255.255.0
+default-router 10.50.51.254
+end
+wr
+
+-----Config WinRadius-----
+
+conf t
+aaa new-model
+aaa authentication login default group radius local none
+radius-server host 172.16.5.1 auth-port 1616 acct-port 1617 key WinRadius
+line console 0
+login authentication default
+privilege level 15
+exit
+line vty 0 4
+login authentication default
+privilege level 15
+password callisto
+end
+
+-----Config Syslog-----
+
+conf t
+logging 172.16.5.1
+logging trap 6
+logging source-interface G0/0
+logging source-interface G0/1
+logging on
+login on-failure log
+login on-success log
+end
+
+-----SNMP en lien avec Syslog-----
+
+conf t
+no snmp-server community public RO
+snmp-server community private RO
+snmp-server enable traps
+snmp-server host 172.16.5.1 private
+snmp-server manager
+end
+wr
+
+
+
+-----Ne plus etre interrompu par des messages console quand on tape-----
+
+conf t
+line console 0
+logging synchro
+line vty 0 4
+logging synchro
+end
+
+-----Config PAT-----
+
+conf t
+ip nat inside source list 1 int G0/2 overload
+access-list 1 permit 10.50.51.0 0.0.0.255
+int G0/0.51
+ip nat inside
+exit
+int G0/2
+ip nat outside
+
+
+-----Correction décallage heure entre appareil et logs-----
+
+conf t
+service timestamps log datetime localtime
+end
+wr
+
+-----Save config auto-----
+
+conf t
+archive
+path tftp://172.16.5.1/RouteurCore/$h$t
+time-period 1440
+write-memory
+end
+wr
+
+-----COnfiguration IP SLA (test automatique de connectivité)-----
+
+conf t
+ip sla 1
+icmp-echo 100.66.0.1
+frequency 30
+timeout 5000
+exit
+ip sla schedule 5 start-time now life forever
+end
+show ip sla op 1
+
+conf t
+track 1 ip sla 1 state
+delay up 5 down 2
+end
+show track 1
+
+
+-----Default Gateway vers IP WAN-----
+
+conf t
+ip default-gateway 100.64.0.254
+end
+wr
+
+-----Mise a jour NTP master pour NTP BBA-----
+
+conf t
+ntp master 7
+end
+wr
+
+-----Ip via DHCP du BBA-----
+
+conf t
+int G0/2
+shut
+no ip address
+ip address dhcp
+no shut
+end
+wr
+
+-----Route pour PAT BBA----- (quelle difference avec ip default-gateway?)
+
+conf t
+ip route 0.0.0.0 0.0.0.0 G0/2 100.64.0.254
+
+-----Sauvegarde manuelle des configs en vue d'un rollback-----
+
+copy run flash:
+saveconfig.txt
+show flash:
+copy run tftp
+172.16.5.1
+
+-----

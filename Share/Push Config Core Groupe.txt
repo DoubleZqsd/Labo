@@ -1,0 +1,42 @@
+Modifications à pousser sur le CORE
+-----------------------------------
+
+conf t
+int G0/0.*1
+no ip address
+exit
+no int G0/0.*1
+
+int G0/0.*2
+no ip address
+exit
+no int G0/0.*2
+
+int G0/0.*3
+no ip address
+exit
+no int G0/0.*3
+
+int G0/0.*4
+no ip address
+exit
+no int G0/0.*4
+
+int G0/0.*6
+no ip address
+exit
+no int G0/0.*6
+
+int G0/0.45
+no ip address
+exit
+no int G0/0.45
+
+int G0/* (interface vers IPS)
+shut
+ip address 10.*0.*7.254 255.255.255.0
+description Interface vers IPS
+no shut
+
+
+access-list 1 permit 10.*0.*7.0 0.0.0.255

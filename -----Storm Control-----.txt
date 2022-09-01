@@ -1,0 +1,12 @@
+-----Storm Control-----
+
+conf t
+int range fast ou giga 0/1-24
+OU
+int fast ou giga 0/X sur chaque interface up
+storm-control broadcast level 75 15
+storm-control multicast level 75 15
+storm-control unicast level 75 15
+storm-control action trap
+
+sh storm-control

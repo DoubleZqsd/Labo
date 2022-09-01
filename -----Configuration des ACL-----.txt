@@ -1,0 +1,45 @@
+-----Configuration des ACL-----
+
+conf t
+ip access-list extended *nom de l'ACL*
+exemple :
+permit tcp 192.168.10.0 0.0.0.255 any eq 80
+permit tcp 192.168.10.0 0.0.0.255 any eq 443
+exit
+(autorise les paquets tcp depuis 192.168.10.0 vers ports 80 et 443)
+
+ip access-list extender *nom 2e ACL*
+
+permit tcp any 192.168.10.0 0.0.0.255 established
+exit
+(autorise tout paquet tcp VERS 192.168.10.0)
+
+interface G0/0
+ip access-group *nom de l'ACL* in
+ip access-group *nom 2e ACL* out
+
+(1 interface = 1 ACL in et 1 ACL out)
+
+-----------------------------------------
+
+ Action - Permit or deny
+ Protocol - TCP, UDP, or ICMP
+ Source and destination - IPv4 or IPv6 addresses
+ TCP and UDP - Source and destination port numbers
+ For ICMP - Message types
+
+-----------------------------------------
+
+ACL placées au plus proche de la DESTINATION que possible
+
+Permit IP SHS -> mgt
+Deny IP any -> mgt
+Permit IP any any (pour accepter une DHCP par ex)
+Deny ?? any any
+
+-----------------------------------------
+
+Permit IP 10.50.51.1 10.50.54.0
+Deny IP any 10.50.54.0
+Permit IP any any
+Deny ??? any any

@@ -1,0 +1,186 @@
+IPS push base config
+--------------------
+
+conf t
+hostname IPS-****
+banner motd #STAFF ONLY, GET OUT !#
+enable secret *****
+line console 0
+logging synchro
+password *****
+exit
+line vty 0 4
+logging synchro
+password *****
+login
+transport input ssh
+exit
+service password-encryption
+end
+wr
+
+conf t
+interface g0/0.*1
+shut
+description Vlan DATA
+encapsulation dot1Q *1
+ip address 10.*0.*1.254 255.255.255.0
+no shut
+
+interface g0/0.*2
+shut
+description Vlan WIFI
+encapsulation dot1Q *2
+ip address 10.*0.*2.254 255.255.255.0
+no shut
+
+interface g0/0.*3
+shut
+description Vlan POUBELLE
+encapsulation dot1Q *3
+ip address 10.*0.*3.254 255.255.255.0
+no shut
+
+interface g0/0.*4
+shut
+description Vlan MANAGEMENT
+encapsulation dot1Q *4
+ip address 10.*0.*4.254 255.255.255.0
+no shut
+
+interface g0/0.45
+shut
+description Vlan NATIF
+encapsulation dot1Q 45
+ip address 10.40.15.254 255.255.255.0
+no shut
+
+interface g0/0.*6
+shut
+description Vlan MONITORING
+encapsulation dot1Q *6
+ip address 10.*0.*6.254 255.255.255.0
+no shut
+end
+
+
+conf t
+int g0/* (vers CORE)
+shut
+ip address 10.*0.*7.1 255.255.255.0
+description Interface vers Routeur CORE
+no shut
+end
+
+
+conf t
+ip domain-name ********
+username zqsd privilege 15 secret *****
+crypto key gen rsa mod 1024
+ip ssh v 2
+line vty 0 4
+login local
+transport input ssh telnet
+exit
+
+ip ssh time-out 75
+ip ssh authentication-retries 5
+end
+
+
+conf t
+lldp run
+no cdp run
+end
+
+
+conf t
+aaa new-model
+aaa authentication login default group radius local none
+radius-server host 172.16.*.1 auth-port **** acct-port **** key WinRadius (ip HP et ports Radius)
+line console 0
+login authentication default
+privilege level 15
+exit
+line vty 0 4
+login authentication default
+privilege level 15
+password *****
+end
+
+
+
+conf t
+logging 172.16.*.1 (ip HP)
+logging trap 6
+logging source-interface G0/0
+logging source-interface G0/1
+logging on
+login on-failure log
+login on-success log
+
+no snmp-server community public RO
+snmp-server community private RO
+snmp-server enable traps
+snmp-server host 172.16.*.1 private (ip HP)
+snmp-server manager
+end
+
+
+conf t
+int G0/0.*1 (sous interface vlan DATA)
+ip nat inside
+exit
+int G0/1 (interface vers core)
+ip nat outside
+ip nat inside source list 1 int G0/1 overload
+access-list 1 permit 10.*0.*1.0 0.0.0.255
+end
+
+
+
+conf t
+ip sla 1
+icmp-echo 100.6*.0.1  (ip loopback dans bba (66,67,68,69?))
+frequency 30
+timeout 5000
+exit
+ip sla schedule 5 start-time now life forever
+end
+show ip sla op 1
+end
+
+
+conf t
+track 1 ip sla 1 state
+delay up 5 down 2
+end
+
+
+
+conf t
+ntp server 10.*0.*0.2  (ip loopback NTP dans le CORE)
+clock timezone CST +1
+clock summer-time CST recurring
+end
+
+
+
+conf t
+ip route 0.0.0.0 0.0.0.0 G0/1 10.*0.*7.254 (ip nouvelle interface Core vers IPS)
+end
+
+
+
+
+conf t
+int G0/0.*1  (ip sous interface vlan DATA)
+ip helper-address 10.*0.*7.254  (ip nouvelle interface Core vers IPS)
+end
+
+
+
+conf t
+int g0/* (interface vers MLS)
+ip nat inside source static tcp 10.*0.*1.254 3389 172.16.*.1 3389  (ip sous int vlan data - ip HP)
+end

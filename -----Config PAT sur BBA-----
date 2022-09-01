@@ -1,0 +1,24 @@
+-----Config PAT sur BBA-----
+Sur BBA :
+
+conf t
+int G0/0
+ip nat inside
+exit
+int G0/1
+ip nat outside
+exit
+access-list 1 permit 100.64.0.0 0.0.0.255
+ip nat inside source list 1 int G0/1 overload
+
+ip route 0.0.0.0 0.0.0.0 G0/1 172.20.192.1
+
+Sur Core :
+
+conf t
+ip route 0.0.0.0 0.0.0.0 G0/2 100.64.0.254
+
+
+Sur SHS :
+
+route add -p 8.8.8.8 mask 255.255.255.0 10.50.51.254

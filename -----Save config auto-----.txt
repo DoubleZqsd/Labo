@@ -1,0 +1,9 @@
+-----Save config auto-----
+
+conf t
+archive
+path tftp://172.16.5.1/Switch01/$h$t
+time-period 1440
+write-memory
+end
+wr

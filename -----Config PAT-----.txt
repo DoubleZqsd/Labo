@@ -1,0 +1,11 @@
+-----Config PAT-----
+
+conf t
+ip nat inside soucre list 1 int G0/0 overload
+access-list 1 permit 10.50.51.0 0.0.0.255
+int G0/0
+ip nat inside
+exit
+int G0/2
+ip nat outside
+

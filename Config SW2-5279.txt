@@ -1,0 +1,246 @@
+Configuration SW2-5279
+======================
+
+-----Base, hostname et password-----
+
+conf t
+hostname SW2-5279
+banner motd #STAFF ONLY, GET OUT !#
+enable secret callisto
+line console 0
+password callisto
+exit
+line vty 0 4
+password callisto
+login
+transport input ssh
+exit
+service password-encryption
+end
+wr
+
+-----Création des VLAN-----
+
+conf t
+vlan 45
+name NATIF
+exit
+vlan 51
+name DATA
+exit
+vlan 52
+name WIFI
+exit
+vlan 53
+name BIN
+exit
+vlan 54
+name MANAGEMENT
+exit
+vlan 56
+name MONITORING
+end
+wr
+
+-----Description des vlan-----
+
+conf t
+interface vlan 45
+description Vlan NATIF
+no shut
+exit
+interface vlan 51
+description Vlan DATA
+no shut
+exit
+interface vlan 52
+description Vlan WIFI
+no shut
+exit
+interface vlan 53
+description Vlan POUBELLE
+no shut
+exit
+interface vlan 54
+description Vlan MANAGEMENT
+no shut
+exit
+interface vlan 56
+description Vlan MONITORING
+no shut
+end
+wr
+
+---Port vers le SW01 mis dans vlan NATIVE en 802.1Q---
+
+interface f0/2
+shut
+switchport mode trunk
+switchport trunk native vlan 45
+switchport nonegotiate
+switchport trunk allowed vlan 51-54,56
+no shut
+
+---Port vers le MLS mis dans vlan NATIVE en 802.1Q---
+
+interface f0/3
+shut
+switchport mode trunk
+switchport trunk native vlan 45
+switchport nonegotiate
+switchport trunk allowed vlan 51-54,56
+no shut
+
+---Adresse IP sur le vlan MANAGEMENT (ip dans le mm réseau que la sous interface MGT sur le Core)---
+
+interface vlan 54
+shut
+ip address 10.50.54.2 255.255.255.0
+no shut
+
+-----Passerelle par défaut-----
+
+conf t
+ip default-gateway 10.50.54.254
+
+-----Ports pas utilisés mis dans le vlan TRASH et shut-----
+conf t
+interface range f0/1 , f0/4-24
+switchport mode access
+switchport access vlan 53
+shut
+exit
+interface range G0/1-2
+switchport mode access
+switchport access vlan 53
+shut
+
+-----Configuration SSH Telnet-----
+
+conf t
+ip domain-name ZqsdPod
+username zqsd privilege 15 secret callisto
+crypto key gen rsa mod 1024
+ip ssh v 2
+line vty 0 4
+login local
+transport input ssh telnet
+exit
+
+ip ssh time-out 75
+ip ssh authentication-retries 5
+
+-----Passage de CDP a LLDP-----
+
+conf t
+lldp run
+no cdp run
+end
+wr
+
+-----Configuration Spanning Tree-----
+
+conf t
+spanning-tree mode rapid-pvst
+
+(auto en secondary)
+
+-----Configuration NTP-----
+
+conf t
+ntp server 10.50.50.2
+clock timezone CST +1
+clock summer-time CST recurring
+
+-----Config WinRadius-----
+
+conf t
+aaa new-model
+aaa authentication login default group radius local none
+radius-server host 172.16.5.1 auth-port 1616 acct-port 1617 key WinRadius
+line console 0
+login authentication default
+privilege level 15
+exit
+line vty 0 4
+login authentication default
+privilege level 15
+password callisto
+end
+
+-----Config Syslog-----
+
+conf t
+logging 172.16.5.1
+logging trap 6
+logging source-interface F0/2
+logging source-interface F0/3
+logging source-interface vlan 45
+logging source-interface vlan 51
+logging source-interface vlan 54
+logging on
+login on-failure log
+login on-success log
+end
+
+-----SNMP en lien avec Syslog-----
+
+conf t
+no snmp-server community public RO
+snmp-server community private RO
+snmp-server enable traps
+snmp-server host 172.16.5.1 private
+snmp-server manager
+end
+wr
+
+-----Ne plus etre interrompu par des messages console quand on tape-----
+
+conf t
+line console 0
+logging synchro
+line vty 0 4
+logging synchro
+end
+
+-----Configuration DHCP Snooping-----
+
+show ip dhcp snooping
+conf t
+ip dhcp snooping
+ip dhcp snooping vlan 51
+ip arp inspection vlan 51
+no ip dhcp snooping information option
+interface range f0/2-3
+ip dhcp snooping trust
+ip arp inspection trust
+ip dhcp snooping limit rate 10
+end
+wr
+
+-----Correction décallage heure entre appareil et logs-----
+
+conf t
+service timestamps log datetime localtime
+end
+wr
+
+-----Save config auto-----
+
+conf t
+archive
+path tftp://172.16.5.1/Switch02/$h$t
+time-period 1440
+write-memory
+end
+wr
+
+-----Sauvegarde manuelle des configs en vue d'un rollback-----
+
+copy run flash:
+saveconfig.txt
+show flash:
+copy run tftp
+172.16.5.1
+
+-----
