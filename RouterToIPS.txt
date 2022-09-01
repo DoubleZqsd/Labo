@@ -1,0 +1,75 @@
+Transform rooter into IPS by Richard
+====================================
+
+
+1. Configurer hostname, IP, MDP
+
+2. Configurer routage statique
+- Vers HP
+- Vers BBA (loopback) ?
+- Vers DATA et MNGMT ?
+- Vers SHS ?
+
+3. Vérifier l'existence d'un dossier dans la flash
+show flash
+mkdir ipsdir
+
+dir flash:ipsdir -> pour vérifier création du dossier
+
+4. Copier le contenu de la clé (realm-cisco.pub.key.txt) depuis le SHS
+IPS
+conf t
+coller la clé
+exit
+sh run
+
+5. Créer règle IPS et config
+conf t
+ip ips name iosips (peut être lié à une ACL)
+
+ip ips config location flash:ipsdir
+
+6. Demander à Jean s'il faut activer Cisco Security Device Event, si oui :
+ip http server
+ip ips notify sdee
+
+7. Activer Syslog IPS
+ip ips notify log
+(Synchroniser NTP ou plus tard)
+logging 172.16.x.x
+sh logging
+
+8. Config des signatures
+conf t
+ip ips signature-category
+category all
+retired true
+exit
+category ios_ips basic
+retired false
+end
+
+9. Appliquer les règles aux interfaces voulues
+int machinbazard0/0
+ip ips iosips in
+exit
+int machinbidule0/1
+ip ips iosips in
+exit
+
+Des logs devraient apparaitre dans syslog
+
+wr
+
+10. Charger package signature avec TFTP
+HP
+Mettre le package dans le dossier cible TFTP
+IPS
+copy tftp://172.16.x.x/nomdupaquet.pkg id conf
+
+dir flash:ipsdir
+
+Vérifier avec : sh ip ips signature count
+si key not found étape 4 à refaire
+
+sh ip ips all

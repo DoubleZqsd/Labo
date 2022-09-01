@@ -161,7 +161,7 @@ icmp-echo 100.66.0.1
 frequency 30
 timeout 5000
 exit
-ip sla schedule 5 start-time now life forever
+ip sla schedule 1 start-time now life forever
 end
 show ip sla op 1
 

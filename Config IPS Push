@@ -21,6 +21,7 @@ service password-encryption
 end
 wr
 
+
 conf t
 interface g0/0.51
 shut
@@ -127,7 +128,6 @@ snmp-server enable traps
 snmp-server host 172.16.5.1 private
 snmp-server manager
 end
-end
 
 
 
@@ -140,6 +140,9 @@ int G0/1
 ip nat outside
 ip nat inside source list 1 int G0/1 overload
 access-list 1 permit 10.50.51.0 0.0.0.255
+access-list 1 permit 10.50.54.0 0.0.0.255
+int G0/0.54
+ip nat inside
 end
 
 
@@ -150,9 +153,7 @@ icmp-echo 100.66.0.1
 frequency 30
 timeout 5000
 exit
-ip sla schedule 5 start-time now life forever
-end
-show ip sla op 1
+ip sla schedule 1 start-time now life forever
 end
 
 
