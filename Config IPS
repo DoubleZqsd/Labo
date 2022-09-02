@@ -145,12 +145,15 @@ wr
 conf t
 ip nat inside source list 1 int G0/1 overload
 access-list 1 permit 10.50.51.0 0.0.0.255
+access-list 1 permit 10.50.54.0 0.0.0.255
 int G0/0.51
 ip nat inside
 exit
 int G0/1
 ip nat outside
-
+exit
+ip route 0.0.0.0 0.0.0.0 G0/1 10.50.57.254
+end
 
 
 -----COnfiguration IP SLA (test automatique de connectivité)-----
@@ -182,11 +185,6 @@ service timestamps log datetime localtime
 
 
 
------Route pour PAT BBA----- (quelle difference avec ip default-gateway?)
-
-conf t
-ip route 0.0.0.0 0.0.0.0 G0/1 10.50.57.254
-
 
 
 
@@ -197,6 +195,17 @@ int G0/0.51
 ip helper-address 10.50.57.254
 end
 
+
+-----Configuration serveur dhcp-----
+
+conf t
+service dhcp
+ip dhcp excluded-address 10.50.51.50 10.50.51.255
+ip dhcp pool HostsDHCP
+network 10.50.51.0 255.255.255.0
+default-router 10.50.51.254
+end
+wr
 
 
 -----Port forwarding pour protocole RDP (3389)(du HP vers le SHS)-----

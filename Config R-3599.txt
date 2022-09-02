@@ -129,16 +129,7 @@ ntp update-calendar
 exit
 clock set 16:00:00 10 June 2022
 
------Configuration serveur dhcp-----
 
-conf t
-service dhcp
-ip dhcp excluded-address 10.50.51.50 10.50.51.255
-ip dhcp pool HostsDHCP
-network 10.50.51.0 255.255.255.0
-default-router 10.50.51.254
-end
-wr
 
 -----Config WinRadius-----
 
