@@ -155,6 +155,15 @@ exit
 ip route 0.0.0.0 0.0.0.0 G0/1 10.50.57.254
 end
 
+-----Port forwarding pour protocole RDP (3389)(du HP vers le SHS)-----
+(G0/0 int vers SHS)
+
+
+conf t
+no ip nat inside source static tcp 10.50.51.254 3389 10.50.57.1 3389
+ip nat inside source static tcp 10.50.51.1 3389 10.50.57.1 3389
+end
+
 
 -----COnfiguration IP SLA (test automatique de connectivité)-----
 
@@ -206,13 +215,3 @@ network 10.50.51.0 255.255.255.0
 default-router 10.50.51.254
 end
 wr
-
-
------Port forwarding pour protocole RDP (3389)(du HP vers le SHS)-----
-(G0/0 int vers SHS)
-
-
-conf t
-int g0/0
-ip nat inside source static tcp 10.50.51.254 3389 172.16.5.1 3389
-end

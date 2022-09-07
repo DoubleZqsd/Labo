@@ -185,7 +185,7 @@ end
 
 conf t
 ip nat inside source list 1 int G0/2 overload
-access-list 1 permit 10.50.51.0 0.0.0.255
+access-list 1 permit 10.50.57.0 0.0.0.255
 int G0/0.51
 ip nat inside
 exit
@@ -267,4 +267,8 @@ show flash:
 copy run tftp
 172.16.5.1
 
------
+-----Route pour RDP HP -> SHS -----
+
+conf t
+ip route 10.50.57.0 255.255.255.0 G0/0 10.50.57.1
+end
