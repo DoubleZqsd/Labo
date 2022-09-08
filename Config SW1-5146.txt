@@ -1,7 +1,7 @@
 Configuration SW1-5146
 ======================
 
------Base, hostname et password-----
+================Base, hostname et password================
 
 conf t
 hostname SW1-5146
@@ -21,7 +21,7 @@ wr
 
 
 
------Création des VLAN-----
+================Création des VLAN================
 
 conf t
 vlan 45
@@ -44,7 +44,7 @@ name MONITORING
 end
 wr
 
------Description des vlan-----
+================Description des vlan================
 
 conf t
 interface vlan 45
@@ -73,14 +73,14 @@ no shut
 end
 wr
 
------Port vers le SHS mis dans le vlan DATA-----
+================Port vers le SHS mis dans le vlan DATA================
 
 interface f0/5
 switchport mode access
 switchport access vlan 51
 no shut
 
------Port vers le MLS mis dans le VLAN NATIVE en 802.1Q-----
+================Port vers le MLS mis dans le VLAN NATIVE en 802.1Q================
 
 interface f0/1
 shut
@@ -90,7 +90,7 @@ switchport nonegotiate
 switchport trunk allowed vlan 51-54,56
 no shut
 
------Port vers le SW02 mis dans le vlan NATIVE en 802.1Q-----
+================Port vers le SW02 mis dans le vlan NATIVE en 802.1Q================
 
 interface f0/2
 shut
@@ -100,19 +100,19 @@ switchport nonegotiate
 switchport trunk allowed vlan 51-54,56
 no shut
 
----Adresse IP sur le vlan MANAGEMENT (ip dans le mm réseau que la sous interface MGT sur le Core)---
+================Adresse IP sur le vlan MANAGEMENT (ip dans le mm réseau que la sous interface MGT sur le Core================
 
 interface vlan 54
 shut
 ip address 10.50.54.1 255.255.255.0
 no shut
 
------Passerelle par défaut-----
+================Passerelle par défaut================
 
 conf t
 ip default-gateway 10.50.54.254
 
------Ports pas utilisés dans le vlan TRASH et shut-----
+================Ports pas utilisés dans le vlan TRASH et shut================
 
 conf t
 interface range f0/3-4 , f0/6-24
@@ -125,7 +125,7 @@ switchport mode access
 switchport access vlan 53
 shut
 
------Configuration SSH Telnet-----
+================Configuration SSH Telnet================
 
 conf t
 ip domain-name ZqsdPod
@@ -140,7 +140,7 @@ exit
 ip ssh time-out 75
 ip ssh authentication-retries 5
 
------Passage de CDP a LLDP-----
+================Passage de CDP a LLDP================
 
 conf t
 lldp run
@@ -148,14 +148,14 @@ no cdp run
 end
 wr
 
------Configuration Spanning Tree-----
+================Configuration Spanning Tree================
 
 conf t
 spanning-tree mode rapid-pvst
 
 (auto en secondary)
 
------Configuration NTP-----
+================Configuration NTP================
 
 conf t
 ntp server 10.50.50.2
@@ -163,7 +163,7 @@ clock timezone CST +1
 clock summer-time CST recurring
 
 
------Config WinRadius-----
+================Config WinRadius================
 
 conf t
 aaa new-model
@@ -180,7 +180,7 @@ password callisto
 end
 
 
------Config Syslog-----
+================Config Syslog================
 
 conf t
 logging 172.16.5.1
@@ -196,7 +196,7 @@ login on-failure log
 login on-success log
 end
 
------SNMP en lien avec Syslog-----
+================SNMP en lien avec Syslog================
 
 conf t
 no snmp-server community public RO
@@ -207,7 +207,7 @@ snmp-server manager
 end
 wr
 
------Ne plus etre interrompu par des messages console quand on tape-----
+================Ne plus etre interrompu par des messages console quand on tape================
 
 conf t
 line console 0
@@ -216,7 +216,7 @@ line vty 0 4
 logging synchro
 end
 
------Configuration DHCP Snooping + DAI-----
+================Configuration DHCP Snooping + DAI================
 
 show ip dhcp snooping
 conf t
@@ -231,7 +231,7 @@ ip dhcp snooping limit rate 10
 end
 wr
 
------Config Port Security-----
+================Config Port Security================
 
 conf t
 int f0/5
@@ -243,7 +243,7 @@ switchport port-security violation restrict
 end
 wr
 
------Storm Control-----
+================Storm Control================
 
 conf t
 int range f0/5
@@ -254,14 +254,14 @@ storm-control action trap
 end
 sh storm-control
 
------Correction décallage heure entre appareil et logs-----
+================Correction décallage heure entre appareil et logs================
 
 conf t
 service timestamps log datetime localtime
 end
 wr
 
------Save config auto-----
+================Save config auto================
 
 conf t
 archive
@@ -275,7 +275,7 @@ ajouter un copy pour save
 idéal : ajouter un event pour la sauvegarde
 en prod une save a intervalle régulier est une mauvaise idée
 
------Sauvegarde manuelle des configs en vue d'un rollback-----
+================Sauvegarde manuelle des configs en vue d'un rollback================
 
 copy run flash:
 saveconfig.txt
@@ -283,4 +283,4 @@ show flash:
 copy run tftp
 172.16.5.1
 
------
+================

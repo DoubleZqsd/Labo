@@ -1,7 +1,7 @@
 Configuration IPS
------------------
+=================
 
------Base, hostname et password-----
+================Base, hostname et password================
 
 conf t
 hostname IPS
@@ -21,7 +21,7 @@ service password-encryption
 end
 wr
 
------Sous interface VLAN DATA-----
+================Sous interface VLAN DATA================
 
 interface g0/0.51
 shut
@@ -30,7 +30,7 @@ encapsulation dot1Q 51
 ip address 10.50.51.254 255.255.255.0
 no shut
 
------Sous interface VLAN WIFI-----
+================Sous interface VLAN WIFI================
 
 interface g0/0.52
 shut
@@ -39,7 +39,7 @@ encapsulation dot1Q 52
 ip address 10.50.52.254 255.255.255.0
 no shut
 
------Sous interface VLAN BIN-----
+================Sous interface VLAN BIN================
 
 interface g0/0.53
 shut
@@ -48,7 +48,7 @@ encapsulation dot1Q 53
 ip address 10.50.53.254 255.255.255.0
 no shut
 
------Sous interface VLAN MGT-----
+================Sous interface VLAN MGT================
 
 interface g0/0.54
 shut
@@ -57,7 +57,7 @@ encapsulation dot1Q 54
 ip address 10.50.54.254 255.255.255.0
 no shut
 
------Sous interface VLAN NATIF-----
+================Sous interface VLAN NATIF================
 
 interface g0/0.45
 shut
@@ -66,7 +66,7 @@ encapsulation dot1Q 45
 ip address 10.40.15.254 255.255.255.0
 no shut
 
------Sous interface VLAN MONITORING-----
+================Sous interface VLAN MONITORING================
 
 interface g0/0.56
 shut
@@ -75,7 +75,7 @@ encapsulation dot1Q 56
 ip address 10.50.56.254 255.255.255.0
 no shut
 
------Configuration SSH Telnet-----
+================Configuration SSH Telnet================
 
 conf t
 ip domain-name ZqsdPod
@@ -90,7 +90,7 @@ exit
 ip ssh time-out 75
 ip ssh authentication-retries 5
 
------Passage de CDP a LLDP-----
+================Passage de CDP a LLDP================
 
 conf t
 lldp run
@@ -98,7 +98,7 @@ no cdp run
 end
 wr
 
------Config WinRadius-----
+================Config WinRadius================
 
 conf t
 aaa new-model
@@ -114,7 +114,7 @@ privilege level 15
 password callisto
 end
 
------Config Syslog-----
+================Config Syslog================
 
 conf t
 logging 172.16.5.1
@@ -126,7 +126,7 @@ login on-failure log
 login on-success log
 end
 
------SNMP en lien avec Syslog-----
+================SNMP en lien avec Syslog================
 
 conf t
 no snmp-server community public RO
@@ -140,7 +140,7 @@ wr
 
 
 
------Config PAT-----
+================Config PAT================
 
 conf t
 ip nat inside source list 1 int G0/1 overload
@@ -155,7 +155,7 @@ exit
 ip route 0.0.0.0 0.0.0.0 G0/1 10.50.57.254
 end
 
------Port forwarding pour protocole RDP (3389)(du HP vers le SHS)-----
+================Port forwarding pour protocole RDP (3389)(du HP vers le SHS================
 (G0/0 int vers SHS)
 
 
@@ -165,7 +165,7 @@ ip nat inside source static tcp 10.50.51.1 3389 10.50.57.1 3389
 end
 
 
------COnfiguration IP SLA (test automatique de connectivité)-----
+================COnfiguration IP SLA (test automatique de connectivité================
 
 conf t
 ip sla 1
@@ -184,7 +184,7 @@ end
 show track 1
 
 
------NTP-----
+================NTP================
 
 conf t
 ntp server 10.50.50.2
@@ -197,7 +197,7 @@ service timestamps log datetime localtime
 
 
 
------DHCP relay------
+================DHCP relay================
 
 conf t
 int G0/0.51
@@ -205,7 +205,7 @@ ip helper-address 10.50.57.254
 end
 
 
------Configuration serveur dhcp-----
+================Configuration serveur dhcp================
 
 conf t
 service dhcp
@@ -215,3 +215,55 @@ network 10.50.51.0 255.255.255.0
 default-router 10.50.51.254
 end
 wr
+
+
+================Fonction IPS================
+
+
+(Vérifier l'existence d'un dossier dans la flash)
+show flash
+mkdir ipsdir
+
+(Copier le contenu de la clé (realm-cisco.pub.key.txt) depuis le SHS)
+conf t
+coller la clé
+exit
+sh run
+
+(Créer règle IPS et config)
+conf t
+ip ips name iosips
+ip ips config location flash:ipsdir
+
+(Activer Syslog IPS)
+ip ips notify log
+service timestamps log datetime msec
+logging 172.16.5.1
+end
+
+(Config des signatures)
+conf t
+ip ips signature-category
+category all
+retired true
+exit
+category ios_ips basic
+retired false
+end
+
+(Appliquer les règles aux interfaces voulues)
+int G0/0
+ip ips iosips in
+exit
+int G0/1
+ip ips iosips in
+end
+
+(Charger package signature avec TFTP)
+HP
+Mettre le package dans le dossier cible TFTP
+IPS
+copy tftp://172.16.5.1/IOS-S364-CLI.pkg idconf
+dir flash:ipsdir
+show ip ips signature count
+show ip ips all

@@ -1,7 +1,7 @@
 Configuration MLS-5303
 ======================
 
------Base, hostname et password-----
+================Base, hostname et password================
 
 conf t
 hostname MLS-5303
@@ -19,7 +19,7 @@ service password-encryption
 end
 wr
 
------Création des VLAN-----
+================Création des VLAN================
 
 conf t
 vlan 45
@@ -42,7 +42,7 @@ name MONITORING
 end
 wr
 
------Description des vlan-----
+================Description des vlan================
 
 conf t
 interface vlan 45
@@ -71,7 +71,7 @@ no shut
 end
 wr
 
------Port vers SW01 dans vlan NATIF en 802.1Q-----
+================Port vers SW01 dans vlan NATIF en 802.1Q================
 
 interface g1/0/1
 shut
@@ -81,7 +81,7 @@ switchport nonegotiate
 switchport trunk allowed vlan 51-54,56
 no shut
 
------Port vers SW02 dans vlan NATIF en 802.1Q-----
+================Port vers SW02 dans vlan NATIF en 802.1Q================
 
 interface g1/0/2
 shut
@@ -91,7 +91,7 @@ switchport nonegotiate
 switchport trunk allowed vlan 51-54,56
 no shut
 
------Port vers R01 dans vlan NATIF en 802.1Q-----
+================Port vers R01 dans vlan NATIF en 802.1Q================
 
 interface g1/0/3
 shut
@@ -101,19 +101,19 @@ switchport nonegotiate
 switchport trunk allowed vlan 51-54,56
 no shut
 
------Adresse IP sur le vlan MANAGEMENT (ip dans le mm réseau que la sous interface MGT sur le Core)-----
+================Adresse IP sur le vlan MANAGEMENT (ip dans le mm réseau que la sous interface MGT sur le Core================
 
 interface vlan 54
 shut
 ip address 10.50.54.3 255.255.255.0
 no shut
 
------Passerelle par défaut-----
+================Passerelle par défaut================
 
 conf t
 ip default-gateway 10.50.54.254
 
------Ports non utilisés dans vlan TRASH et shut-----
+================Ports non utilisés dans vlan TRASH et shut================
 
 conf t
 interface range g1/0/4-24
@@ -121,7 +121,7 @@ switchport mode access
 switchport access vlan 53
 shut
 
------Configuration SSH Telnet-----
+================Configuration SSH Telnet================
 
 conf t
 ip domain-name ZqsdPod
@@ -136,7 +136,7 @@ exit
 ip ssh time-out 75
 ip ssh authentication-retries 5
 
------Passage de CDP a LLDP-----
+================Passage de CDP a LLDP================
 
 conf t
 lldp run
@@ -144,20 +144,20 @@ no cdp run
 end
 wr
 
------Spanning Tree-----
+================Spanning Tree================
 
 conf t
 spanning-tree vlan 45,51-54,56 root primary
 spanning-tree mode rapid-pvst
 
------Configuration NTP-----
+================Configuration NTP================
 
 conf t
 ntp server 10.50.50.2
 clock timezone CST +1
 clock summer-time CST recurring
 
------Configuration WinRadius-----
+================Configuration WinRadius================
 
 conft
 radius server WinRadius
@@ -175,7 +175,7 @@ login authentication default
 privilege level 15
 end
 
------Config Syslog-----
+================Config Syslog================
 
 conf t
 logging 172.16.5.1
@@ -191,7 +191,7 @@ login on-failure log
 login on-success log
 end
 
------SNMP en lien avec Syslog-----
+================SNMP en lien avec Syslog================
 
 conf t
 no snmp-server community public RO
@@ -202,7 +202,7 @@ snmp-server manager
 end
 wr
 
------Ne plus etre interrompu par des messages console quand on tape-----
+================Ne plus etre interrompu par des messages console quand on tape================
 
 conf t
 line console 0
@@ -211,7 +211,7 @@ line vty 0 4
 logging synchro
 end
 
------Configuration DHCP Snooping-----
+================Configuration DHCP Snooping================
 
 show ip dhcp snooping
 conf t
@@ -226,14 +226,14 @@ ip dhcp snooping limit rate 10
 end
 wr
 
------Correction décallage heure entre appareil et logs-----
+================Correction décallage heure entre appareil et logs================
 
 conf t
 service timestamps log datetime localtime
 end
 wr
 
------Save config auto-----
+================Save config auto================
 
 conf t
 archive
@@ -243,7 +243,7 @@ write-memory
 end
 wr
 
------Sauvegarde manuelle des configs en vue d'un rollback-----
+================Sauvegarde manuelle des configs en vue d'un rollback================
 
 copy run flash:
 saveconfig.txt
@@ -251,4 +251,4 @@ show flash:
 copy run tftp
 172.16.5.1
 
------
+================

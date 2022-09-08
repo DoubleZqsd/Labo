@@ -1,7 +1,7 @@
 Configuration R-3599
 ====================
 
------Base, hostname et password-----
+================Base, hostname et password================
 
 conf t
 hostname R-3599
@@ -19,7 +19,7 @@ service password-encryption
 end
 wr
 
------Sous interface VLAN DATA-----
+================Sous interface VLAN DATA================
 
 interface g0/0.51
 shut
@@ -28,7 +28,7 @@ encapsulation dot1Q 51
 ip address 10.50.51.254 255.255.255.0
 no shut
 
------Sous interface VLAN WIFI-----
+================Sous interface VLAN WIFI================
 
 interface g0/0.52
 shut
@@ -37,7 +37,7 @@ encapsulation dot1Q 52
 ip address 10.50.52.254 255.255.255.0
 no shut
 
------Sous interface VLAN BIN-----
+================Sous interface VLAN BIN================
 
 interface g0/0.53
 shut
@@ -46,7 +46,7 @@ encapsulation dot1Q 53
 ip address 10.50.53.254 255.255.255.0
 no shut
 
------Sous interface VLAN MGT-----
+================Sous interface VLAN MGT================
 
 interface g0/0.54
 shut
@@ -55,7 +55,7 @@ encapsulation dot1Q 54
 ip address 10.50.54.254 255.255.255.0
 no shut
 
------Sous interface VLAN NATIF-----
+================Sous interface VLAN NATIF================
 
 interface g0/0.45
 shut
@@ -64,7 +64,7 @@ encapsulation dot1Q 45
 ip address 10.40.15.254 255.255.255.0
 no shut
 
------Sous interface VLAN MONITORING-----
+================Sous interface VLAN MONITORING================
 
 interface g0/0.56
 shut
@@ -74,7 +74,7 @@ ip address 10.50.56.254 255.255.255.0
 no shut
 
 
------Interface vers HP-----
+================Interface vers HP================
 
 conf t
 int g0/1
@@ -84,7 +84,7 @@ end
 wr
 
 
------Création des loopbacks-----
+================Création des loopbacks================
 
 conf t
 interface loopback 0
@@ -96,7 +96,7 @@ ip address 10.50.50.2 255.255.255.255
 description Loopback pour NTP
 end
 
------Configuration SSH Telnet-----
+================Configuration SSH Telnet================
 
 conf t
 ip domain-name ZqsdPod
@@ -111,7 +111,7 @@ exit
 ip ssh time-out 75
 ip ssh authentication-retries 5
 
------Passage de CDP a LLDP-----
+================Passage de CDP a LLDP================
 
 conf t
 lldp run
@@ -119,7 +119,7 @@ no cdp run
 end
 wr
 
------Configuration Serveur NTP-----
+================Configuration Serveur NTP================
 
 conf t
 clock timezone gmt +2
@@ -131,7 +131,7 @@ clock set 16:00:00 10 June 2022
 
 
 
------Config WinRadius-----
+================Config WinRadius================
 
 conf t
 aaa new-model
@@ -147,7 +147,7 @@ privilege level 15
 password callisto
 end
 
------Config Syslog-----
+================Config Syslog================
 
 conf t
 logging 172.16.5.1
@@ -159,7 +159,7 @@ login on-failure log
 login on-success log
 end
 
------SNMP en lien avec Syslog-----
+================SNMP en lien avec Syslog================
 
 conf t
 no snmp-server community public RO
@@ -172,7 +172,7 @@ wr
 
 
 
------Ne plus etre interrompu par des messages console quand on tape-----
+================Ne plus etre interrompu par des messages console quand on tape================
 
 conf t
 line console 0
@@ -181,7 +181,7 @@ line vty 0 4
 logging synchro
 end
 
------Config PAT-----
+================Config PAT================
 
 conf t
 ip nat inside source list 1 int G0/2 overload
@@ -193,14 +193,14 @@ int G0/2
 ip nat outside
 
 
------Correction décallage heure entre appareil et logs-----
+================Correction décallage heure entre appareil et logs================
 
 conf t
 service timestamps log datetime localtime
 end
 wr
 
------Save config auto-----
+================Save config auto================
 
 conf t
 archive
@@ -210,7 +210,7 @@ write-memory
 end
 wr
 
------COnfiguration IP SLA (test automatique de connectivité)-----
+================COnfiguration IP SLA (test automatique de connectivité================
 
 conf t
 ip sla 1
@@ -229,21 +229,21 @@ end
 show track 1
 
 
------Default Gateway vers IP WAN-----
+================Default Gateway vers IP WAN================
 
 conf t
 ip default-gateway 100.64.0.254
 end
 wr
 
------Mise a jour NTP master pour NTP BBA-----
+================Mise a jour NTP master pour NTP BBA================
 
 conf t
 ntp master 7
 end
 wr
 
------Ip via DHCP du BBA-----
+================Ip via DHCP du BBA================
 
 conf t
 int G0/2
@@ -254,12 +254,12 @@ no shut
 end
 wr
 
------Route pour PAT BBA----- (quelle difference avec ip default-gateway?)
+================Route pour PAT BBA================
 
 conf t
 ip route 0.0.0.0 0.0.0.0 G0/2 100.64.0.254
 
------Sauvegarde manuelle des configs en vue d'un rollback-----
+================Sauvegarde manuelle des configs en vue d'un rollback================
 
 copy run flash:
 saveconfig.txt
@@ -267,8 +267,10 @@ show flash:
 copy run tftp
 172.16.5.1
 
------Route pour RDP HP -> SHS -----
+================Route pour RDP HP -> SHS ================
 
 conf t
 ip route 10.50.57.0 255.255.255.0 G0/0 10.50.57.1
 end
+
+================
