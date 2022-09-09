@@ -186,7 +186,7 @@ end
 conf t
 ip nat inside source list 1 int G0/2 overload
 access-list 1 permit 10.50.57.0 0.0.0.255
-int G0/0.51
+int G0/0
 ip nat inside
 exit
 int G0/2

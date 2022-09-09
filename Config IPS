@@ -160,7 +160,6 @@ end
 
 
 conf t
-no ip nat inside source static tcp 10.50.51.254 3389 10.50.57.1 3389
 ip nat inside source static tcp 10.50.51.1 3389 10.50.57.1 3389
 end
 
@@ -192,17 +191,6 @@ clock timezone CST +1
 clock summer-time CST recurring
 service timestamps log datetime localtime
 
-
-
-
-
-
-================DHCP relay================
-
-conf t
-int G0/0.51
-ip helper-address 10.50.57.254
-end
 
 
 ================Configuration serveur dhcp================
@@ -260,9 +248,8 @@ ip ips iosips in
 end
 
 (Charger package signature avec TFTP)
-HP
-Mettre le package dans le dossier cible TFTP
-IPS
+(Mettre le package dans le dossier cible TFTP)
+
 copy tftp://172.16.5.1/IOS-S364-CLI.pkg idconf
 dir flash:ipsdir
 show ip ips signature count
