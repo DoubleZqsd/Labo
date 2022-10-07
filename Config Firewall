@@ -1,0 +1,27 @@
+Configuration Firewall
+======================
+
+================Firewall mode================
+
+conf t
+firewall transparent
+
+================Base etc================
+
+conf t
+banner motd #STAFF ONLY, GET OUT !#
+hostname FW-Zqsd
+domain-name ZqsdPOD
+enable password callisto
+username Zqsd password callisto
+passwd callisto
+
+================Set Time and shit================
+
+conf t
+clock timezone CST +1
+clock summer-time CST recurring
+ntp server 10.50.50.2
+
+
+En mode bridge il nous faut une ip de management. Elle se met sur un vlan ? "sur une interface logique, pas physique"
