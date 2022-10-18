@@ -273,4 +273,8 @@ conf t
 ip route 10.50.57.0 255.255.255.0 G0/0 10.50.57.1
 end
 
-================
+================Route vers vlan mise en place pdt problème communication Win Serveur================
+
+conf t
+ip route 10.50.51.0 255.255.255.0 10.50.57.1
+end

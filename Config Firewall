@@ -1,11 +1,6 @@
 Configuration Firewall
 ======================
 
-================Firewall mode================
-
-conf t
-firewall transparent
-
 ================Base etc================
 
 conf t
@@ -16,6 +11,30 @@ enable password callisto
 username Zqsd password callisto
 passwd callisto
 
+================Firewall mode================
+
+conf t
+firewall transparent
+
+================Configuration des interfaces avec Bridge group================
+
+conf t
+int G1/1
+bridge-group 1
+nameif inside
+security-level 100
+no shut
+
+int g1/2
+bridge-group 1
+nameif outside
+security-level 0
+no shut
+
+int bvI 1
+ip address 10.50.57.2
+end
+
 ================Set Time and shit================
 
 conf t
@@ -23,5 +42,14 @@ clock timezone CST +1
 clock summer-time CST recurring
 ntp server 10.50.50.2
 
+================ACL pour laisser passer ce qu'on veut================
 
-En mode bridge il nous faut une ip de management. Elle se met sur un vlan ? "sur une interface logique, pas physique"
+conf t
+access-list OUTSIDE-IN extended permit icmp any any echo-reply
+access-list OUTSIDE-IN extended deny ip any any log
+access-group OUTSIDE-IN in interface outside
+end
+(laisse passer les pings)
+
+no access-list NTP extended permit tcp 10.50.57.0 255.255.255.0 any eq 123
+no access-group NTP in interface inside

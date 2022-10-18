@@ -1,0 +1,85 @@
+Audit
+=====
+
+-DHCP starvation and DHCP spoofing
+Solution : DHCP Snooping
+Test : Introduction d'un serveur dhcp sur un port no trust ? Pas facile sur une infra centralisée
+On peut ne pas le tester mais vérifier qu'il y a un dai. Pour avoir un dai il faut un dhcp snooping. Pour test le dai il ne faut pas forcément etre intrusif.
+Quand on connecte une machine intrusive sur un port ça devrait gen un log. La question est donc est ce qu'une alarme est générée.
+Recommandation :
+
+
+
+-Spanning Tree compromise
+Solution :  1 Proactively configure the primary and backup root device (MLS configuré en primary pour tous les vlan, mode rapid-pvst)
+            2 Enable root guard (pas mis en place)
+Test : On ne shut pas les interfaces. Sauf si dans une infra ou on suspecte un disfonctionnement SPT, mettre un systeme de sniffing en lieu et place
+ d'un host et vérifier si il y a des bpdu. En alanysant les bpdu, avec un analyseur de trames, ensuite un spécialiste STP peut controler si il n'y a pas
+ de dysfonctionnement. On peut aussi voir pdt le fonctionnement si il n'y a pas des TCN dans les trames, qui réveleraient un dysfonct.
+ Il devrait y avoir des limitations de dispo de MAC ad sur un port. Pas besoin de déclencher une avalanche (si pas de sécurité ou si fct pas, on va tout casser (switch en fail open, full bnroadcast))
+ Si je viens mettre un switch au lieu d'un host est ce que je vais gen une alarme. Outil : Yesrinia (fait pour la couche 2) permet de gen des bpdu, gen des dhcp. Assez intuitif, il suffit de cocher des cases.
+ S'assurer aussi qu'on ne va pas pouvoir modifier le root bridge. Vérifications BPDU, bpdu envoyés vers les hosts, ...
+ Envoyer des bpdu avec Yersinia
+
+
+Recommandation : You configure spanning tree root guard on a per interface basis
+                 SW1(config-if)#spanning-tree guard root
+                 Commande à effectuer sur toutes les interface connectées sous le root bridge (MLS)
+
+
+
+-SSH and Telnet attacks (couche applicative, pas pour cet audit L2)
+Test : Metasploit / THC Hydra
+Recommandation : ?
+On ne va pas tester les vulnérabilités SSH, elles existent c'est tout. CE qu'on va test c'est les sécurités mises en place sur les mdp et utilisateurs SSH, modele AAA mis en place.
+Voir si il y a des systemes de blocking et reporting mis en place.
+
+
+VRai résultat pour tout : Est ce que le disfonctionnement est détecté et log généré. TRap snmp.
+
+Si le temps (lol) scan couche 3 pour voir si des adresses ip indésirables vont être détectées.
+
+Pour demain tableau tel qu'on l'a, voir ce qui est mis en place ou pas, fonctionnel ou pas (rapport au test), colonne de test
+
+Ne pas oublier l'interconnectivité entre les vlan ET dans un même vlan (deux hosts dans un meme vlan). Il est possible qu'une entreprise demande de conserver l'interconnectivité entre deux
+machines sur le meme vlan mais concretement pour nous on devrait savoir que c'est pas ouf ouf. Faire le lien avec ce qu'on a vu jusqu'à présent. En terme de sécurité et ethical hacking.
+Comme ce sont des machines windows il y aura une interco implicite et qui pourrait favoriser la propagation d'un malware. (l'utilisateur peut demander que les machines
+puissent partager des fichiers entre elle. Ok mais attantion à ... recommandations pas techniques, qu'est ce que ça va impliquer, qu'est ce que ça va m'apporter)
+Si ajd dans notre pod les hosts communiquent entre eux, np. Mais si ça se passe, quelles sont les recommandations.
+Si un client par ex ne veut pas de service dhcp (bim un pan de mur de la cyber sec se pete la gueule) tenter de le convaincre, qu'il y a des moyens (sans pour autant
+acheter du matos) d'améliorer la cybersec. Fournir des recommandations. (garder à l'esprit que meme la simple configuration implique des frais, c'est pas gratos)
+Les 2960 supportent l'isolation des machines entre elles. D'autres ne le supportent pas, peut être intéressant si il y a un IPS dnas l'infra, de mettre un IDS (?)
+pour limiter l'échange entre les machines.
+
+Table ARP : si il y a un mac flooding et si limitation mise en place sur le switch, si la limi est dépassée est ce qu'une info est envoyée sur le syslog.
+Si on devait avoir une tempete, est ce que la tempete va mettre à mal l'infra. Avant d'en arriver à cette catastrophe, est ce qu'il y aura eu des logs qui vont
+avertir que sur le port xyz il y a une "attaque" et est ce que en stoppant l'attaque on va revenir à une situation normale.
+De l'ext on ne sait pas vérifier que les ports sont shut et dans le vlan poubelle donc c'est une question à poser. (on pose bcp de questions on a pas tjrs bcp de réponses)
+L'intéret est : est ce qu'on y a pensé. C'est aussi leur demander d'y penser. La question n'est pas est ce que la config est bien faite mal faite. Si on test il faut
+voir le résultat. Sans aller jusqu'au crash pdt un test est ce que des logs / snmp traps sont générés. Si l'attaque disparait est ce que je reviens à une situation normale.
+Ex pour le mac flooding, si je gen une tempete arp, est ce que l'infra est protégée et on reçoit  l'info, et est ce que si l'attaque est stoppée l'infra revient à la normale ou
+bien quelqu'un va devoir intervenir. Le mieux ofc est que ça revienne à la normale tout seul. Sinon c'est aussi exploitable par un hacker. Il peut casser les couilles à un
+moment opportun. Dans la gestion des incidents, si par ex on a l'attaque 5 fois en 24h on peut décider de fermer le port.
+
+Chez nous on a que snmp traps et syslog. Dans un systeme de sécurité il va y avoir des alertes mail dans un prem temps puis sms.
+
+Si mac flooding ça ne se voit pas dans la table arp, c'est dans la table de communication. Table CAM (il faut un acces au switch pour la voir). L'entrée ou non n'est pas l'important.
+Il faut être averti et il faut que le switch ne soit pas saturé. Error disable + logs. Quand on test on en crée suffisamment peu pour ne pas mettre l'infra par terre.
+Dans le cadre d'un audit on a pas acces à la table de cam.
+
+On connait Cisco mais on ne peut pas connaitre les commandes en tout. Ce qui est important c'est les résultats des tests.
+
+L'audit se fait en plusieurs étapes,
+Présenter l'audit : ce qu'on va faire comme test. (Possible aussi de présenter l'audit par couche OSI)
+Voilà les menaces, voilà les solutions, comment le test est réalisé, quelles sont les recommandations en fct de ce qui a été découvert.
+Ex utilisation de Yersinia, ce qu'on peut faire manuellement, si qq'un veut faire un script. Pas pret pour demain ok mais estimation de temps alors.
+Dans la majorité des cas un audit aboutit par la présentation de ce qui n'a pas été mis en place et ce qui va être recommandé. Un audit est bienveillant, là pour aider.
+Il ne faut pas que les recommandations soient vues comme un jugement.
+
+SSH c'est de l'applicatif mais c'est par rapport au data plane. "show ip ssh" oui mais non car on a pas l'acces. On en parlera plus tard mais c'est voir les vulnérabilités SSH
+On sort de la couche 2 mais c'est faisable avec Nmap. Eventuellement un telnet sur le port ssh pour récupérer le numéro de la version.
+
+On peut aller voir Cisco mais garder en tete que Cisco ne fait pas d'audit de sécu. Leurs recommandations sont orientées design network.
+
+CDP ? LLDP ?
+Rien n'empeche de faire un scan (pas faisable couche 2 mais faisable par l'intermédiaire de la couche 3) pour faire des controles et voir ce qui traine à gauche à droite.
