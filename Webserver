@@ -14,4 +14,6 @@ scp -r Webcon *tab* root@172.16.5.2:/root/Desktop
 
 ================Configuration Apache================
 
-service httpd start
+
+service httpd start (démarrer le service)
+chkconfig httpd on (service auto start)
