@@ -53,3 +53,11 @@ end
 
 no access-list NTP extended permit tcp 10.50.57.0 255.255.255.0 any eq 123
 no access-group NTP in interface inside
+
+================Installation ASDM================
+
+conf t
+http server enable
+http 10.50.57.0 255.255.255.0 inside
+asdm image disk0:/asdm-782.bin
+end

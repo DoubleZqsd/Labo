@@ -237,9 +237,10 @@ conf t
 int f0/5
 switchport mode access
 switchport port-security
-switchport port-security maximum 5
+switchport port-security maximum 10
 switchport port-security mac-address sticky
-switchport port-security violation restrict
+ip arp inspection trust
+ip dhcp snooping trust
 end
 wr
 
