@@ -154,8 +154,8 @@ spanning-tree mode rapid-pvst
 
 conf t
 ntp server 10.50.50.2
-clock timezone CST +1
-clock summer-time CST recurring
+clock timezone GMT +1
+clock summer-time GMT recurring
 
 ================Configuration WinRadius================
 

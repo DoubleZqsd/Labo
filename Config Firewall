@@ -32,14 +32,14 @@ security-level 0
 no shut
 
 int bvI 1
-ip address 10.50.57.2
+ip address 10.50.57.2 255.255.255.0
 end
 
 ================Set Time and shit================
 
 conf t
-clock timezone CST +1
-clock summer-time CST recurring
+clock timezone GMT +1
+clock summer-time GMT recurring
 ntp server 10.50.50.2
 
 ================ACL pour laisser passer ce qu'on veut================
