@@ -1,0 +1,17 @@
+Configuation Web Serveur RHEL
+=============================
+
+================Copie du fichier Webcontents.zip sur VM RHEL================
+
+Sur la VM RHEL:
+service sshd start
+
+Sur l'hote Windows:
+
+Transférer le fichier via Anydesk
+Via cmd aller dans le répertoire où se trouve le zip
+scp -r Webcon *tab* root@172.16.5.2:/root/Desktop
+
+================Configuration Apache================
+
+service httpd start
