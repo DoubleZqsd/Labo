@@ -17,3 +17,4 @@ scp -r Webcon *tab* root@172.16.5.2:/root/Desktop
 
 service httpd start (démarrer le service)
 chkconfig httpd on (service auto start)
+service httpd reload (ne coupe pas la co contrairement à restart)
