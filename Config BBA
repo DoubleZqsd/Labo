@@ -1,0 +1,15 @@
+================Config BBA================
+
+conf t
+
+ip nat inside source static tcp 172.16.5.11 80 172.20.192.100 81
+ip nat inside source static tcp 172.16.5.12 80 172.20.192.100 82
+
+ip nat inside source static tcp 172.16.4.32 80 172.20.192.100 83
+ip nat inside source static tcp 172.16.4.42 80 172.20.192.100 84
+
+ip nat inside source static tcp 172.16.3.6 80 172.20.192.100 85
+ip nat inside source static tcp 172.16.3.7 80 172.20.192.100 86
+
+ip nat inside source static tcp 172.20. . 87 172.20.192.100 87
+ip nat inside source static tcp 172.20. . 88 172.20.192.100 88

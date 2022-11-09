@@ -122,12 +122,14 @@ wr
 ================Configuration Serveur NTP================
 
 conf t
-clock timezone gmt +2 (+1 en hiver)
-ntp master 10
+clock timezone gmt +2
+ntp master
 ntp source loopback 1
 ntp update-calendar
 exit
 clock set 16:00:00 10 June 2022
+
+
 
 ================Config WinRadius================
 
@@ -198,17 +200,7 @@ service timestamps log datetime localtime
 end
 wr
 
-================Save config auto================
-
-conf t
-archive
-path tftp://172.16.5.1/RouteurCore/$h$t
-time-period 1440
-write-memory
-end
-wr
-
-================Configuration IP SLA (test automatique de connectivité)================
+================COnfiguration IP SLA (test automatique de connectivité================
 
 conf t
 ip sla 1
@@ -216,7 +208,7 @@ icmp-echo 100.66.0.1
 frequency 30
 timeout 5000
 exit
-ip sla schedule 1 start-time now life forever
+ip sla schedule 5 start-time now life forever
 end
 show ip sla op 1
 
@@ -225,21 +217,6 @@ track 1 ip sla 1 state
 delay up 5 down 2
 end
 show track 1
-
-conf t
-ip sla 2
-icmp-echo 8.8.8.8
-frequency 30
-timeout 5000
-exit
-
-ip sla schedule 2 start-time now life forever
-
-conf t
-track 2 ip sla 2 state
-delay up 5 down 2
-end
-
 
 
 ================Default Gateway vers IP WAN================
